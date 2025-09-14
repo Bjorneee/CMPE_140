@@ -1,0 +1,14 @@
+# compile verilog/system verilog design source files
+sv xil_defaultlib  \
+"../../../../Assignment_1_Factorial_Accelerator.srcs/sources_1/new/cnt.sv" \
+"../../../../Assignment_1_Factorial_Accelerator.srcs/sources_1/new/control_unit.sv" \
+"../../../../Assignment_1_Factorial_Accelerator.srcs/sources_1/new/data_path.sv" \
+"../../../../Assignment_1_Factorial_Accelerator.srcs/sources_1/new/fact_accel.sv" \
+"../../../../Assignment_1_Factorial_Accelerator.srcs/sources_1/new/reg32.sv" \
+"../../../../Assignment_1_Factorial_Accelerator.srcs/sim_1/new/testbench.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort
