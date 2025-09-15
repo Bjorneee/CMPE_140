@@ -10,8 +10,8 @@ Starting simulation data flow analysis
 Completed simulation data flow analysis
 Time Resolution for simulation is 1ps
 Compiling module xil_defaultlib.control_unit
-Compiling module xil_defaultlib.cnt
-Compiling module xil_defaultlib.reg32
+Compiling module xil_defaultlib.down_counter
+Compiling module xil_defaultlib.fact_reg
 Compiling module xil_defaultlib.data_path
 Compiling module xil_defaultlib.fact_accel
 Compiling module xil_defaultlib.testbench

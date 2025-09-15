@@ -1,4 +1,4 @@
-set_property SRC_FILE_INFO {cfile:C:/Users/benny/Documents/Vivado/140/Assignment_1_Factorial_Accelerator/Assignment_1_Factorial_Accelerator.srcs/constrs_1/new/Basys3_RevB.xdc rfile:../../../Assignment_1_Factorial_Accelerator.srcs/constrs_1/new/Basys3_RevB.xdc id:1} [current_design]
+set_property SRC_FILE_INFO {cfile:C:/Users/benny/OneDrive/Documents/Vivado/CMPE_140/Assignment_1_Factorial_Accelerator/Assignment_1_Factorial_Accelerator.srcs/constrs_1/new/Basys3_RevB.xdc rfile:../../../Assignment_1_Factorial_Accelerator.srcs/constrs_1/new/Basys3_RevB.xdc id:1} [current_design]
 set_property src_info {type:XDC file:1 line:7 export:INPUT save:INPUT read:READ} [current_design]
 set_property -dict { PACKAGE_PIN W5   IOSTANDARD LVCMOS33 } [get_ports clk]
 set_property src_info {type:XDC file:1 line:11 export:INPUT save:INPUT read:READ} [current_design]

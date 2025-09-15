@@ -1,8 +1,8 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
-| Date         : Thu Sep 11 10:20:43 2025
-| Host         : Bennys_Laptop running 64-bit major release  (build 9200)
+| Date         : Sun Sep 14 16:11:36 2025
+| Host         : Bennys-Computer running 64-bit major release  (build 9200)
 | Command      : report_control_sets -verbose -file basys3_top_control_sets_placed.rpt
 | Design       : basys3_top
 | Device       : xc7a35t
@@ -60,7 +60,7 @@ Table of Contents
 +--------------+-----------------------+------------------------+-----------------+--------------+
 | No           | No                    | No                     |               3 |            2 |
 | No           | No                    | Yes                    |               0 |            0 |
-| No           | Yes                   | No                     |              71 |           22 |
+| No           | Yes                   | No                     |              71 |           24 |
 | Yes          | No                    | No                     |              32 |            8 |
 | Yes          | No                    | Yes                    |               0 |            0 |
 | Yes          | Yes                   | No                     |               0 |            0 |
@@ -75,9 +75,9 @@ Table of Contents
 +----------------+-----------------------------------+------------------+------------------+----------------+--------------+
 |  clk_IBUF_BUFG |                                   |                  |                1 |              1 |         1.00 |
 |  U0/clk_5kHz   |                                   |                  |                1 |              2 |         2.00 |
-|  clk_IBUF_BUFG |                                   | FDUT/CU/Q[4]     |               10 |             31 |         3.10 |
-|  clk_IBUF_BUFG | FDUT/CU/FSM_onehot_state_reg[6]_0 |                  |                8 |             32 |         4.00 |
-|  clk_IBUF_BUFG |                                   | rst_IBUF         |               12 |             40 |         3.33 |
+|  clk_IBUF_BUFG |                                   | FDUT/CU/Q[1]     |               11 |             31 |         2.82 |
+|  clk_IBUF_BUFG | FDUT/CU/FSM_onehot_state_reg[2]_0 |                  |                8 |             32 |         4.00 |
+|  clk_IBUF_BUFG |                                   | rst_IBUF         |               13 |             40 |         3.08 |
 +----------------+-----------------------------------+------------------+------------------+----------------+--------------+
 
 

@@ -37,17 +37,18 @@ module basys3_top(
     reg  [31:0] N;
     wire [31:0] product;
 
-    // DUT
+    // Factorial Accelerator
     fact_accel FDUT (
-        .N(N),
-        .START(start),
+        .N_INPUT(N),
+        .GO(start),
         .RESET(rst),
         .CLK(clk),
-        .product(product),
-        .error(error),
-        .done(done)
+        .PRODUCT(product),
+        .ERROR(error),
+        .DONE(done)
         );
     
+    // Get input from board
     input_switches (
         .in_sw(sw), 
         .HILO_sel(HILO_sel), 
@@ -69,7 +70,7 @@ module basys3_top(
         );
         
     bin2hex32 U1(
-        .value(product),
+        .value(product),    // Display output to 7-seg display
         .dig0(dig0),
         .dig1(dig1),
         .dig2(dig2),
@@ -180,7 +181,7 @@ module input_switches(
     
     // Assign inputs
     always @ (*) begin
-        case (in_sw)
+        case (in_sw) // One-hot inputs
             13'b0000000000001: in = 32'd1;
             13'b0000000000010: in = 32'd2;
             13'b0000000000100: in = 32'd3;
@@ -194,7 +195,7 @@ module input_switches(
             13'b0010000000000: in = 32'd11;
             13'b0100000000000: in = 32'd12;
             13'b1000000000000: in = 32'd13;
-            default: in = 32'd0;
+            default: in = 32'd0; // If 0 or multiple switches are on
         endcase
     end
     

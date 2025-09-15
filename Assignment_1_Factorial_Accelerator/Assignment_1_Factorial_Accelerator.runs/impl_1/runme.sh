@@ -25,7 +25,7 @@ else
 fi
 export LD_LIBRARY_PATH
 
-HD_PWD='C:/Users/benny/Documents/Vivado/140/Assignment_1_Factorial_Accelerator/Assignment_1_Factorial_Accelerator.runs/impl_1'
+HD_PWD='C:/Users/benny/OneDrive/Documents/Vivado/CMPE_140/Assignment_1_Factorial_Accelerator/Assignment_1_Factorial_Accelerator.runs/impl_1'
 cd "$HD_PWD"
 
 HD_LOG=runme.log

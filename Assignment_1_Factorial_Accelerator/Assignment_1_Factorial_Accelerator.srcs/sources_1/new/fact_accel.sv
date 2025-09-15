@@ -21,37 +21,37 @@
 
 
 module fact_accel #(localparam WIDTH = 32)(
-    input [WIDTH - 1:0] N,
-    input logic START, RESET, CLK,
-    output [WIDTH - 1:0] product,
-    output logic error, done
+    input [WIDTH - 1:0] N_INPUT,
+    input logic GO, RESET, CLK,
+    output [WIDTH - 1:0] PRODUCT,
+    output logic ERROR, DONE
     );
     
-    wire gt_fact, gt_intp;
-    wire SEL, LOAD_CNT, LOAD_REG, OUT_EN, ENABLE;
+    wire N_GT_1, N_GT_12;
+    wire Sel, Load_cnt, Load_reg, OE, EN;
     
-    control_unit CU(.GO(START), 
-                    .N_GT_1(gt_fact), 
-                    .N_GT_12(gt_intp), 
+    control_unit CU(.GO(GO), 
+                    .N_GT_1(N_GT_1), 
+                    .N_GT_12(N_GT_12), 
                     .CLK(CLK), 
                     .RESET(RESET),
-                    .sel(SEL), 
-                    .load_reg(LOAD_REG), 
-                    .load_cnt(LOAD_CNT), 
-                    .en_cnt(ENABLE), 
-                    .en_out(OUT_EN),
-                    .fact_error(error), 
-                    .fact_done(done));
-    
-    data_path DP(   .N_INPUT(N), 
-                    .SEL(SEL), 
-                    .LD_REG(LOAD_REG), 
-                    .LD_CNT(LOAD_CNT), 
-                    .EN(ENABLE), 
-                    .OE(OUT_EN), 
+                    .Sel(Sel), 
+                    .Load_reg(Load_reg), 
+                    .Load_cnt(Load_cnt), 
+                    .EN(EN), 
+                    .OE(OE),
+                    .ERROR(ERROR), 
+                    .DONE(DONE));
+                    
+    data_path DP(   .N_INPUT(N_INPUT), 
+                    .Sel(Sel), 
+                    .Load_reg(Load_reg), 
+                    .Load_cnt(Load_cnt), 
+                    .EN(EN), 
+                    .OE(OE), 
                     .CLK(CLK), 
-                    .n_gt_1(gt_fact), 
-                    .n_gt_12(gt_intp), 
-                    .product_out(product));
+                    .N_GT_1(N_GT_1), 
+                    .N_GT_12(N_GT_12), 
+                    .PRODUCT(PRODUCT));
     
 endmodule
