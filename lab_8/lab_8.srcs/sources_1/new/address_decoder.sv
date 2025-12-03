@@ -21,14 +21,14 @@
 
 
 module address_decoder(
-        input  wire        mem_we,
-        input  wire [31:0] addr,
-        output wire        we_dm,
-        output wire        we_fa,
-        output wire        we_io,
+        input  wire        we,
+        input  wire [31:0] a,
+        output wire        we1,
+        output wire        we2,
+        output wire        we3,
         output wire [1:0]  rd_sel
     );
 
 
-    
+
 endmodule

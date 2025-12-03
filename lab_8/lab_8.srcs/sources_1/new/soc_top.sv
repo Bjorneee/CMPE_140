@@ -23,9 +23,13 @@
 module soc_top(
         input  wire        clk,
         input  wire        rst,
+        input  wire [31:0] gpi1,
+        input  wire [31:0] gpi2,
         //input  wire [4:0]  ra3,
         //output wire [31:0] rd3
-        output  wire [31:0] rd_data
+        output wire [31:0] gpo1,
+        output wire [31:0] gpo2,
+        output wire [31:0] rd_data
     );
 
     wire [31:0] pc_current, instr, alu_out;
@@ -65,6 +69,7 @@ module soc_top(
             .rst            (rst),
             .we             (we),
             .wd             (wd[3:0]),
+            .a              (addr[3:2]),
             .rd             (rd_fa)
         );
 
@@ -72,7 +77,12 @@ module soc_top(
             .clk            (clk),
             .rst            (rst),
             .we             (we),
-            .wd             (wd[15:0]),
+            .ad             (addr[3:2]),
+            .gpi1           (gpi1),
+            .gpi2           (gpi2),
+            .wd             (wd),
+            .gpo1           (gpo1),
+            .gpo2           (gpo2),
             .rd             (rd_io)
         );
 
