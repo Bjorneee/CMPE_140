@@ -98,7 +98,7 @@ module fact_ad (
         input  wire       we,
         output reg        we1,
         output reg        we2,
-        output wire [1:0] rd_sel,
+        output wire [1:0] rd_sel
 );
 
 always_comb begin

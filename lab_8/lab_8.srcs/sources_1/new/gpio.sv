@@ -59,9 +59,12 @@ module gpio #(localparam N = 32) (
             2'b01: rd = gpi2;
             2'b10: rd = gpo1_w;
             2'b11: rd = gpo2_w;
-            default: rd = 32'bx;
+            default: rd = {(N-1){1'bx}};
         endcase
     end
+
+    assign gpo1 = gpo1_w;
+    assign gpo2 = gpo2_w;
 
 endmodule
 
