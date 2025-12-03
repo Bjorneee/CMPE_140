@@ -20,7 +20,7 @@ module fa (
                 .rd_sel     (rd_sel)
         );
 
-        fact_reg #4 n_reg (
+        fact_wrap_reg #4 n_reg (
                 .clk        (clk),
                 .rst        (rst),
                 .d          (wd),
@@ -30,7 +30,7 @@ module fa (
 
         assign n_out[31:4] = 28'b0;
 
-        fact_reg #1 go_reg (
+        fact_wrap_reg #1 go_reg (
                 .clk        (clk),
                 .rst        (rst),
                 .d          (wd[0]),
@@ -49,18 +49,20 @@ module fa (
         assign pulse = temp;
 
         // Done Register
+        reg done_out;
         always @ (posedge clk, posedge rst) begin
-            if (rst) ctrl_out[0] <= 1'b0;
-            else ctrl_out[0] <= (~pulse_cmb) & (done | ctrl_out[0]);
+            if (rst) done_out <= 1'b0;
+            else done_out <= (~pulse_cmb) & (done | done_out);
         end
 
         // Error Register
+        reg error_out;
         always @ (posedge clk, posedge rst) begin
-            if (rst) ctrl_out[1] <= 1'b0;
-            else ctrl_out[1] <= (~pulse_cmb) & (error | ctrl_out[1]);
+            if (rst) error_out <= 1'b0;
+            else error_out <= (~pulse_cmb) & (error | error_out);
         end
 
-        assign ctrl_out[31:2] = 30'b0;
+        assign ctrl_out = {30'b0, error_out, done_out};
 
         fact_accel #4 fact_accel (
                 .N_INPUT    (wd),
@@ -72,7 +74,7 @@ module fa (
                 .DONE       (done)
         );
 
-        fact_reg res_reg (
+        fact_wrap_reg res_reg (
                 .clk        (clk),
                 .rst        (rst),
                 .d          (product),
@@ -81,15 +83,10 @@ module fa (
         );
 
         // Output Mux
-        always_comb begin
-            case (rd_sel)
-                2'b00: rd = n_out;
-                2'b01: rd = go_out;
-                2'b10: rd = ctrl_out;
-                2'b11: rd = result;
-                default: rd = 32'bx;
-            endcase
-        end
+        assign rd = (rd_sel == 2'b00) ? n_out    :
+                    (rd_sel == 2'b01) ? go_out   :
+                    (rd_sel == 2'b10) ? ctrl_out : result;
+
 
 endmodule
 
@@ -136,7 +133,7 @@ assign rd_sel = a;
 
 endmodule
 
-module fact_reg #(localparam w = 32) (
+module fact_wrap_reg #(localparam w = 32) (
         input  wire         clk, rst,
         input  wire [w-1:0] d,
         input  wire         load_reg,
