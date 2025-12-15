@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module imem (
         input  wire [5:0]  a,
         output wire [31:0] y

@@ -33,6 +33,7 @@ module gpio #(localparam N = 32) (
         output wire [N-1:0] rd
     );
 
+    reg [N-1:0] rd_reg;
     wire [31:0] gpo1_w, gpo2_w;
     wire [1:0] rd_sel;
     wire we1, we2;
@@ -53,16 +54,25 @@ module gpio #(localparam N = 32) (
         .q          (gpo2_w)
     );
 
+    gpio_ad decoder (
+        .a          (a),
+        .we         (we),
+        .we1        (we1),
+        .we2        (we2),
+        .rd_sel     (rdsel)
+    );
+
     always_comb begin
         case (rd_sel)
-            2'b00: rd = gpi1;
-            2'b01: rd = gpi2;
-            2'b10: rd = gpo1_w;
-            2'b11: rd = gpo2_w;
-            default: rd = {(N-1){1'bx}};
+            2'b00: rd_reg = gpi1;
+            2'b01: rd_reg = gpi2;
+            2'b10: rd_reg = gpo1_w;
+            2'b11: rd_reg = gpo2_w;
+            default: rd_reg = {(N-1){1'bx}};
         endcase
     end
 
+    assign rd = rd_reg;
     assign gpo1 = gpo1_w;
     assign gpo2 = gpo2_w;
 
@@ -76,49 +86,57 @@ module gpio_ad (
     output wire [1:0] rd_sel
 );
 
+    reg we1_reg, we2_reg;
+
     always_comb begin
         case (a)
             2'b00: begin
-                we1 = 1'b0;
-                we2 = 1'b0;
+                we1_reg = 1'b0;
+                we2_reg = 1'b0;
             end
             2'b01: begin
-                we1 = 1'b0;
-                we2 = 1'b0;
+                we1_reg = 1'b0;
+                we2_reg = 1'b0;
             end
             2'b10: begin
-                we1 = WE;
-                we2 = 1'b0;
+                we1_reg = we;
+                we2_reg = 1'b0;
             end
             2'b11: begin
-                we1 = 1'b0;
-                we2 = WE;
+                we1_reg = 1'b0;
+                we2_reg = we;
             end
             default: begin
-                we1 = 1'bx;
-                we2 = 1'bx;
+                we1_reg = 1'bx;
+                we2_reg = 1'bx;
             end
         endcase
     end
 
+    assign we1 = we1_reg;
+    assign we2 = we2_reg;
     assign rd_sel = a;
 
 endmodule
 
 module gpio_reg #(localparam N = 32) (
-    input  wire       clk,
-    input  wire       rst,
-    input  wire [N-1] d,
-    input  wire       en,
-    output wire [N-1] q
+    input  wire         clk,
+    input  wire         rst,
+    input  wire [N-1:0] d,
+    input  wire         en,
+    output wire [N-1:0] q
 );
+
+    reg [N-1:0] q_reg;
 
     always @ (posedge clk, posedge rst) begin
 
-        if (rst) q <= 0;
-        else if (en) q <= d;
-        else q <= q;
+        if (rst) q_reg <= 0;
+        else if (en) q_reg <= d;
+        else q_reg <= q_reg;
 
     end
+
+    assign q = q_reg;
 
 endmodule

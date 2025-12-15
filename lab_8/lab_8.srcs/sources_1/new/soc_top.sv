@@ -46,8 +46,8 @@ module soc_top(
             .we_dm          (mem_write),
             .pc_current     (pc_current),
             .alu_out        (addr),
-            .wd_dm          (wd),
-            //.rd3            (rd3)
+            .wd_dm          (wd)
+            //.rd3            (rd3),
         );
 
     imem imem (
@@ -86,47 +86,59 @@ module soc_top(
         );
 
     // Address Decoder
+    reg dm_reg, fa_reg, io_reg;
     always_comb begin
         case (addr[5:4])
             2'b00: begin
-                we_dm = 1'b0;
-                we_fa = 1'b0;
-                we_io = 1'b0;
+                dm_reg = 1'b0;
+                fa_reg = 1'b0;
+                io_reg = 1'b0;
             end
             2'b01: begin
-                we_dm = mem_write;
-                we_fa = 1'b0;
-                we_io = 1'b0;
+                dm_reg = mem_write;
+                fa_reg = 1'b0;
+                io_reg = 1'b0;
             end
             2'b10: begin
-                we_dm = 1'b0;
-                we_fa = mem_write;
-                we_io = 1'b0;
+                dm_reg = 1'b0;
+                fa_reg = mem_write;
+                io_reg = 1'b0;
             end
             2'b11: begin
-                we_dm = 1'b0;
-                we_fa = 1'b0;
-                we_io = mem_write;
+                dm_reg = 1'b0;
+                fa_reg = 1'b0;
+                io_reg = mem_write;
             end
             default: begin
-                we_dm = 1'bx;
-                we_fa = 1'bx;
-                we_io = 1'bx;
+                dm_reg = 1'bx;
+                fa_reg = 1'bx;
+                io_reg = 1'bx;
             end
         endcase
     end
+
+    assign we_dm = dm_reg;
+    assign we_fa = fa_reg;
+    assign we_io = io_reg;
 
     assign rd_sel = addr[5:4];
 
-    // Output Mux
-    always_comb begin
-        case (rd_sel)
-            2'b00: rd_data = rd_dm;
-            2'b01: rd_data = rd_dm;
-            2'b10: rd_data = rd_fa;
-            2'b11: rd_data = rd_io;
-            default: rd_data = 32'bx;
-        endcase
-    end
+    //* Output Mux
+    //reg [31:0] dat_reg;
+    //always_comb begin
+    //    case (rd_sel)
+    //        2'b00: dat_reg = rd_dm;
+    //        2'b01: dat_reg = rd_dm;
+    //        2'b10: dat_reg = rd_fa;
+    //        2'b11: dat_reg = rd_io;
+    //        default: dat_reg = 32'bx;
+    //    endcase
+    //end
+
+    assign rd_data =    (rd_sel == 2'b00) ? rd_dm :
+                        (rd_sel == 2'b01) ? rd_dm :
+                        (rd_sel == 2'b10) ? rd_fa :
+                        (rd_sel == 2'b11) ? rd_io :
+                        32'b0;
 
 endmodule

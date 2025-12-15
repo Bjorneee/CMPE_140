@@ -20,17 +20,19 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module s_datapath #(localparam WIDTH = 32)(
+module s_datapath #(parameter WIDTH = 32)(
     input[WIDTH - 1:0] N_INPUT,
     input logic Sel, Load_reg, Load_cnt, EN, OE, CLK,
     output logic N_GT_1, N_GT_12,
-    output[WIDTH - 1:0] PRODUCT
+    output[31:0] PRODUCT
     );
     
-    wire[WIDTH - 1:0] n_out, n_prod, c_prod, out_sel_1;
+    wire[31:0] n_in, n_out, n_prod, c_prod, out_sel_1;
+
+    assign n_in = {{(32-WIDTH){1'b0}}, N_INPUT};
     
     // CNT
-    down_counter cnt(N_INPUT, Load_cnt, EN, CLK, n_out);
+    down_counter cnt(n_in, Load_cnt, EN, CLK, n_out);
     
     // REG
     fact_reg register(out_sel_1, Load_reg, CLK, c_prod);
@@ -52,13 +54,13 @@ module s_datapath #(localparam WIDTH = 32)(
     
 endmodule
 
-module down_counter #(localparam WIDTH = 32)(
-    input[WIDTH - 1:0] D,
+module down_counter #(parameter WIDTH = 32)(
+    input[31:0] D,
     input logic load_cnt, en, clk,
-    output[WIDTH - 1:0] Q
+    output[31:0] Q
     );
     
-    reg[WIDTH - 1:0] count;
+    reg[31:0] count;
     
     always @ (posedge clk) begin
         if(load_cnt)
@@ -71,17 +73,17 @@ module down_counter #(localparam WIDTH = 32)(
     
 endmodule
 
-module fact_reg #(localparam WIDTH = 32)(
-    input[WIDTH - 1:0] D,
+module fact_reg #(parameter WIDTH = 32)(
+    input[31:0] D,
     input logic load_reg, clk,
-    output[WIDTH - 1:0] Q
+    output[31:0] Q
     );
     
-    reg[WIDTH - 1:0] data;
+    reg[31:0] data;
     
     always @ (posedge clk) begin
         if(load_reg) begin
-            data[WIDTH - 1:1] = {WIDTH - 2{1'b0}};
+            data[31:1] = {WIDTH - 2{1'b0}};
             data[0] <= 1'b1;
         end
         else

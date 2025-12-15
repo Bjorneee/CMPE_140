@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module mux2 #(parameter WIDTH = 8) (
         input  wire             sel,
         input  wire [WIDTH-1:0] a,

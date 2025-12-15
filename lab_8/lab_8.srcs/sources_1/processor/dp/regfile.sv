@@ -1,5 +1,8 @@
+`timescale 1ns / 1ps
+
 module regfile (
         input  wire        clk,
+        input  wire        rst,
         input  wire        we,
         input  wire [4:0]  ra1,
         input  wire [4:0]  ra2,
@@ -20,8 +23,12 @@ module regfile (
         rf[29] = 32'h100; // Initialze $sp
     end
     
-    always @ (posedge clk) begin
-        if (we) rf[wa] <= wd;
+    always @ (posedge clk, posedge rst) begin
+        if (rst) begin
+            for (n = 0; n < 32; n = n + 1) rf[n] = 32'h0;
+            rf[29] = 32'h100; // Initialize $sp
+        end
+        else if (we) rf[wa] <= wd;
     end
 
     assign rd1 = (ra1 == 0) ? 0 : rf[ra1];

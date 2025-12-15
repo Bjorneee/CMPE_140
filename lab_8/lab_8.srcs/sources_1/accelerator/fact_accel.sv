@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module fact_accel #(localparam WIDTH = 32)(
+module fact_accel #(parameter WIDTH = 32)(
     input [WIDTH - 1:0] N_INPUT,
     input logic GO, RESET, CLK,
     output [31:0] PRODUCT,
@@ -43,15 +43,15 @@ module fact_accel #(localparam WIDTH = 32)(
                     .ERROR(ERROR), 
                     .DONE(DONE));
                     
-    s_datapath DP(   .N_INPUT(N_INPUT), 
-                    .Sel(Sel), 
-                    .Load_reg(Load_reg), 
-                    .Load_cnt(Load_cnt), 
-                    .EN(EN), 
-                    .OE(OE), 
-                    .CLK(CLK), 
-                    .N_GT_1(N_GT_1), 
-                    .N_GT_12(N_GT_12), 
-                    .PRODUCT(PRODUCT));
+    s_datapath #(.WIDTH(WIDTH)) DP(     .N_INPUT(N_INPUT), 
+                                        .Sel(Sel), 
+                                        .Load_reg(Load_reg), 
+                                        .Load_cnt(Load_cnt), 
+                                        .EN(EN), 
+                                        .OE(OE), 
+                                        .CLK(CLK), 
+                                        .N_GT_1(N_GT_1), 
+                                        .N_GT_12(N_GT_12), 
+                                        .PRODUCT(PRODUCT));
     
 endmodule

@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module dreg # (parameter WIDTH = 32) (
         input  wire             clk,
         input  wire             rst,

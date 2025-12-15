@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module fa (
         input  wire        clk,
         input  wire        rst,
@@ -20,7 +22,7 @@ module fa (
                 .rd_sel     (rd_sel)
         );
 
-        fact_wrap_reg #4 n_reg (
+        fact_wrap_reg #(.w(4)) n_reg (
                 .clk        (clk),
                 .rst        (rst),
                 .d          (wd),
@@ -30,7 +32,7 @@ module fa (
 
         assign n_out[31:4] = 28'b0;
 
-        fact_wrap_reg #1 go_reg (
+        fact_wrap_reg #(.w(1)) go_reg (
                 .clk        (clk),
                 .rst        (rst),
                 .d          (wd[0]),
@@ -64,7 +66,7 @@ module fa (
 
         assign ctrl_out = {30'b0, error_out, done_out};
 
-        fact_accel #4 fact_accel (
+        fact_accel #(.WIDTH(4)) fact_accel (
                 .N_INPUT    (wd),
                 .GO         (pulse),
                 .RESET      (rst),
@@ -133,7 +135,7 @@ assign rd_sel = a;
 
 endmodule
 
-module fact_wrap_reg #(localparam w = 32) (
+module fact_wrap_reg #(parameter w = 32) (
         input  wire         clk, rst,
         input  wire [w-1:0] d,
         input  wire         load_reg,

@@ -51,6 +51,7 @@ module soc_top_tb;
 
     // Reset + simple GPIO stimulus
     initial begin
+        
         // Initialize inputs
         rst  = 1'b1;
         gpi1 = 32'h0000_0000;
@@ -88,18 +89,19 @@ module soc_top_tb;
     // Uses hierarchical references into soc_top for handy visibility.
     // These names match your soc_top internal nets: pc_current, addr, etc.
     initial begin
-        $display("Time     PC          ALU_addr    GPO1        GPO2        rd_data");
+        $display("Time   PC        ALU_addr  GPO1      GPO2      rd_data   instr");
         $display("-----------------------------------------------------------------");
         forever begin
             @(posedge clk);
             if (!rst) begin
-                $display("%0t  %h  %h  %h  %h  %h",
+                $display("%0t  %h  %h  %h  %h  %h  %h",
                          $time,
                          dut.pc_current,
                          dut.addr,
                          gpo1,
                          gpo2,
-                         rd_data);
+                         rd_data,
+                         dut.instr);
             end
         end
     end

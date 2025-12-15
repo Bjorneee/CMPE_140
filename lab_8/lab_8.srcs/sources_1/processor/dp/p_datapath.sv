@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module p_datapath (
         input  wire        clk,
         input  wire        rst,
@@ -7,6 +9,12 @@ module p_datapath (
         input  wire        we_reg,
         input  wire        alu_src,
         input  wire        dm2reg,
+        input  wire        hilo_sel,
+        input  wire        jr,
+        input  wire        npc2ra,
+        input  wire        mul_en,
+        input  wire        shdir,
+        input  wire [1:0]  wdrf_src,
         input  wire [2:0]  alu_ctrl,
         input  wire [4:0]  ra3,
         input  wire [31:0] instr,
@@ -14,13 +22,16 @@ module p_datapath (
         output wire [31:0] pc_current,
         output wire [31:0] alu_out,
         output wire [31:0] wd_dm,
-        output wire [31:0] rd3
+        output wire [31:0] rd3,
+        output wire [31:0] sh_out
     );
 
     wire [4:0]  rf_wa;
+    wire [4:0]  wa;
     wire        pc_src;
     wire [31:0] pc_plus4;
     wire [31:0] pc_pre;
+    wire [31:0] pc_pre1;
     wire [31:0] pc_next;
     wire [31:0] sext_imm;
     wire [31:0] ba;
@@ -28,7 +39,11 @@ module p_datapath (
     wire [31:0] jta;
     wire [31:0] alu_pa;
     wire [31:0] alu_pb;
+    wire [31:0] src;
     wire [31:0] wd_rf;
+    wire [31:0] wd;
+    wire [31:0] sh_out;
+    wire [31:0] m_prod;
     wire        zero;
     
     assign pc_src = branch & zero;
@@ -66,6 +81,13 @@ module p_datapath (
             .sel            (jump),
             .a              (pc_pre),
             .b              (jta),
+            .y              (pc_pre1)
+        );
+
+    mux2 #(32) pc_jr_mux (
+            .sel            (jr),
+            .a              (pc_pre1),
+            .b              (alu_pa),
             .y              (pc_next)
         );
 
@@ -77,17 +99,32 @@ module p_datapath (
             .y              (rf_wa)
         );
 
+    mux2 #(5) ra_wa_mux (
+            .sel            (npc2ra),
+            .a              (rf_wa),
+            .b              (5'd31),
+            .y              (wa)
+        );
+
+    mux2 #(32) ra_wd_mux (
+            .sel            (npc2ra),
+            .a              (wd_rf),
+            .b              (pc_plus4),
+            .y              (wd)
+        );
+
     regfile rf (
             .clk            (clk),
             .we             (we_reg),
             .ra1            (instr[25:21]),
             .ra2            (instr[20:16]),
             .ra3            (ra3),
-            .wa             (rf_wa),
-            .wd             (wd_rf),
+            .wa             (wa),
+            .wd             (wd),
             .rd1            (alu_pa),
             .rd2            (wd_dm),
-            .rd3            (rd3)
+            .rd3            (rd3),
+            .rst            (rst)
         );
 
     signext se (
@@ -116,7 +153,35 @@ module p_datapath (
             .sel            (dm2reg),
             .a              (alu_out),
             .b              (rd_dm),
+            .y              (src)
+        );
+
+    mux4 #(32) wd_src_mux (
+            .sel            (wdrf_src),
+            .a              (src),
+            .b              (sh_out),
+            .c              (m_prod),
+            .d              (32'bx),
             .y              (wd_rf)
+        );
+
+    // --- Shifter Logic --- //
+    shifter sh (
+            .d              (wd_dm),
+            .shamt          (instr[10:6]),
+            .dir            (shdir),
+            .q              (sh_out)
+        );
+
+    // --- Multiplier Logic --- //
+    hilo_mult mult (
+            .a              (alu_pa),
+            .b              (wd_dm),
+            .en             (mul_en),
+            .sel            (hilo_sel),
+            .clk            (clk),
+            .rst            (rst),
+            .y              (m_prod)
         );
 
 endmodule
