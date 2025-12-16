@@ -41,7 +41,7 @@ module gpio #(localparam N = 32) (
     gpio_reg gpo1_reg (
         .clk        (clk),
         .rst        (rst),
-        .d          (gpi1),
+        .d          (wd),
         .en         (we1),
         .q          (gpo1_w)
     );
@@ -49,7 +49,7 @@ module gpio #(localparam N = 32) (
     gpio_reg gpo2_reg (
         .clk        (clk),
         .rst        (rst),
-        .d          (gpi2),
+        .d          (wd),
         .en         (we2),
         .q          (gpo2_w)
     );
@@ -59,7 +59,7 @@ module gpio #(localparam N = 32) (
         .we         (we),
         .we1        (we1),
         .we2        (we2),
-        .rd_sel     (rdsel)
+        .rd_sel     (rd_sel)
     );
 
     always_comb begin

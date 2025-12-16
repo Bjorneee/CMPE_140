@@ -34,7 +34,6 @@ module soc_top(
 
     wire [31:0] pc_current, instr, addr;
     wire [31:0] wd, rd_dm, rd_fa, rd_io;
-    wire [1:0] rd_sel;
     wire mem_write, we_dm, we_fa, we_io;
 
     mips mips (
@@ -42,7 +41,7 @@ module soc_top(
             .rst            (rst),
             //.ra3            (ra3),
             .instr          (instr),
-            .rd_dm          (rd_dm),
+            .rd_dm          (rd_data),
             .we_dm          (mem_write),
             .pc_current     (pc_current),
             .alu_out        (addr),
@@ -51,7 +50,7 @@ module soc_top(
         );
 
     imem imem (
-            .a              (pc_current[7:2]),
+            .a              (pc_current[11:2]),
             .y              (instr)
         );
 
@@ -86,59 +85,20 @@ module soc_top(
         );
 
     // Address Decoder
-    reg dm_reg, fa_reg, io_reg;
-    always_comb begin
-        case (addr[5:4])
-            2'b00: begin
-                dm_reg = 1'b0;
-                fa_reg = 1'b0;
-                io_reg = 1'b0;
-            end
-            2'b01: begin
-                dm_reg = mem_write;
-                fa_reg = 1'b0;
-                io_reg = 1'b0;
-            end
-            2'b10: begin
-                dm_reg = 1'b0;
-                fa_reg = mem_write;
-                io_reg = 1'b0;
-            end
-            2'b11: begin
-                dm_reg = 1'b0;
-                fa_reg = 1'b0;
-                io_reg = mem_write;
-            end
-            default: begin
-                dm_reg = 1'bx;
-                fa_reg = 1'bx;
-                io_reg = 1'bx;
-            end
-        endcase
-    end
 
-    assign we_dm = dm_reg;
-    assign we_fa = fa_reg;
-    assign we_io = io_reg;
+    // Pages (addr[11:8])
+    wire sel_fa = (addr[11:8] == 4'h8);
+    wire sel_io = (addr[11:8] == 4'h9);
+    wire sel_dm = (addr[11:8] == 4'h0) | (addr[11:8] == 4'h1);
 
-    assign rd_sel = addr[5:4];
+    assign we_fa = mem_write & sel_fa;
+    assign we_io = mem_write & sel_io;
+    assign we_dm = mem_write & sel_dm;
 
-    //* Output Mux
-    //reg [31:0] dat_reg;
-    //always_comb begin
-    //    case (rd_sel)
-    //        2'b00: dat_reg = rd_dm;
-    //        2'b01: dat_reg = rd_dm;
-    //        2'b10: dat_reg = rd_fa;
-    //        2'b11: dat_reg = rd_io;
-    //        default: dat_reg = 32'bx;
-    //    endcase
-    //end
+    assign rd_data = sel_fa ? rd_fa :
+                     sel_io ? rd_io :
+                     rd_dm;
 
-    assign rd_data =    (rd_sel == 2'b00) ? rd_dm :
-                        (rd_sel == 2'b01) ? rd_dm :
-                        (rd_sel == 2'b10) ? rd_fa :
-                        (rd_sel == 2'b11) ? rd_io :
-                        32'b0;
+
 
 endmodule

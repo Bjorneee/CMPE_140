@@ -1,109 +1,144 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 12/03/2025 10:58:38 AM
-// Design Name: 
-// Module Name: soc_top_tb
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns/1ps
 
-module soc_top_tb;
+module tb_soc_top;
 
-    // Clock and reset
-    logic        clk;
-    logic        rst;
+  // Clock / reset
+  reg clk;
+  reg rst;
 
-    // GPIO inputs/outputs
-    logic  [31:0] gpi1;
-    logic  [31:0] gpi2;
-    wire   [31:0] gpo1;
-    wire   [31:0] gpo2;
+  // GPIO inputs
+  reg [31:0] gpi1;
+  reg [31:0] gpi2;
 
-    // Data returned to the CPU (from dmem/fact/gpio mux)
-    wire   [31:0] rd_data;
+  // DUT outputs
+  wire [31:0] gpo1;
+  wire [31:0] gpo2;
+  wire [31:0] rd_data;
 
-    // DUT instance
-    soc_top dut (
-        .clk    (clk),
-        .rst    (rst),
-        .gpi1   (gpi1),
-        .gpi2   (gpi2),
-        .gpo1   (gpo1),
-        .gpo2   (gpo2),
-        .rd_data(rd_data)
-    );
+  // Control
+  integer cycle;
+  integer max_cycles;
 
-    // Clock generation: 100 MHz (10 ns period)
-    initial clk = 1'b0;
-    always #5 clk = ~clk;
+  // Tracking / checks
+  reg [31:0] gpo1_prev;
+  reg [31:0] gpo2_prev;
+  reg saw_update;
 
-    // Reset + simple GPIO stimulus
-    initial begin
-        
-        // Initialize inputs
-        rst  = 1'b1;
-        gpi1 = 32'h0000_0000;
-        gpi2 = 32'h0000_0000;
+  // Optional plusargs temp
+  integer tmp;
 
-        // Hold reset for a bit
-        #40;
-        rst = 1'b0;
+  // Instantiate DUT
+  soc_top dut (
+    .clk    (clk),
+    .rst    (rst),
+    .gpi1   (gpi1),
+    .gpi2   (gpi2),
+    .gpo1   (gpo1),
+    .gpo2   (gpo2),
+    .rd_data(rd_data)
+  );
 
-        // Wait a few cycles, then change GPIO inputs
-        // (You can tweak these to match whatever your program expects)
-        repeat (10) @(posedge clk);
-        gpi1 = 32'h0000_0005;   // example: maybe factorial input, switches, etc.
-        gpi2 = 32'h0000_00A0;
+  // Clock: 100 MHz (10ns period)
+  initial begin
+    clk = 1'b0;
+    forever #5 clk = ~clk;
+  end
 
-        // Change again later if desired
-        repeat (50) @(posedge clk);
-        gpi1 = 32'h0000_0003;
-        gpi2 = 32'h0000_000F;
+  // Defaults + plusargs
+  initial begin
+    max_cycles = 5000;
 
-        // Let the program run for a while
-        repeat (500) @(posedge clk);
+    // Default: N=5 in low nibble, and bit4=1 (0x10)
+    gpi1 = 32'h0000_0015;
+    gpi2 = 32'h0000_0000;
 
-        $display("Simulation finished.");
-        $finish;
+    if ($value$plusargs("MAXCYC=%d", tmp))
+      max_cycles = tmp;
+
+    // Many simulators accept %h for 32-bit hex
+    if ($value$plusargs("GPI1=%h", tmp))
+      gpi1 = tmp;
+
+    if ($value$plusargs("GPI2=%h", tmp))
+      gpi2 = tmp;
+  end
+
+  // Wave dump
+  initial begin
+    $dumpfile("soc_top_tb.vcd");
+    $dumpvars(0, tb_soc_top);
+  end
+
+  // Reset sequence
+  initial begin
+    rst = 1'b1;
+    repeat (5) @(posedge clk);
+    rst = 1'b0;
+  end
+
+  // Monitor (soc_top has these internal signals)
+  initial begin
+    $display(" time    pc        addr      instr     memwrite   wd        rd_data    gpo1      gpo2");
+    $display("---------------------------------------------------------------------------------------");
+    forever begin
+      @(posedge clk);
+      $display("%6t  %08h  %08h  %08h     %0d     %08h  %08h  %08h  %08h",
+               $time,
+               dut.pc_current,
+               dut.addr,
+               dut.instr,
+               dut.mem_write,
+               dut.wd,
+               rd_data,
+               gpo1,
+               gpo2);
     end
+  end
 
-    // Waveform dump
-    initial begin
-        $dumpfile("soc_top_tb.vcd");
-        $dumpvars(0, soc_top_tb);
-    end
+  // Main test flow
+  initial begin
+    // wait for reset deassert
+    @(negedge rst);
 
-    // Simple debug printing
-    // Uses hierarchical references into soc_top for handy visibility.
-    // These names match your soc_top internal nets: pc_current, addr, etc.
-    initial begin
-        $display("Time   PC        ALU_addr  GPO1      GPO2      rd_data   instr");
-        $display("-----------------------------------------------------------------");
-        forever begin
-            @(posedge clk);
-            if (!rst) begin
-                $display("%0t  %h  %h  %h  %h  %h  %h",
-                         $time,
-                         dut.pc_current,
-                         dut.addr,
-                         gpo1,
-                         gpo2,
-                         rd_data,
-                         dut.instr);
-            end
+    gpo1_prev  = gpo1;
+    gpo2_prev  = gpo2;
+    saw_update = 1'b0;
+
+    for (cycle = 0; cycle < max_cycles; cycle = cycle + 1) begin
+      @(posedge clk);
+
+      if ((gpo1 !== gpo1_prev) || (gpo2 !== gpo2_prev)) begin
+        saw_update = 1'b1;
+        $display("[TB] GPIO update observed at t=%0t: gpo1=%08h gpo2=%08h", $time, gpo1, gpo2);
+
+        // gpo1 should be (bit4 | errorBit) => one of {0,1,0x10,0x11}
+        if (!((gpo1 == 32'h0000_0000) ||
+              (gpo1 == 32'h0000_0001) ||
+              (gpo1 == 32'h0000_0010) ||
+              (gpo1 == 32'h0000_0011))) begin
+          $display("[TB][WARN] gpo1=%08h unexpected for (bit4 | errorBit). Check GPIO write path / address map.", gpo1);
         end
+
+        if (gpo2 === 32'h0000_0000) begin
+          $display("[TB][WARN] gpo2 is 0 at update; if factorial(0) isn't expected, check FA result/status.");
+        end
+
+        #20;
+        $finish;
+      end
+
+      gpo1_prev = gpo1;
+      gpo2_prev = gpo2;
     end
+
+    if (!saw_update) begin
+      $display("[TB][FAIL] No GPIO update within %0d cycles.", max_cycles);
+      $display("Likely causes:");
+      $display("  - soc_top decoder not using 0x08xx (FA) / 0x09xx (GPIO)");
+      $display("  - gpio.sv outputs still not driven from wd on writes");
+      $display("  - FA never asserts done/error so poll loop never exits");
+      $finish;
+    end
+  end
 
 endmodule
