@@ -67,7 +67,7 @@ module fa (
         assign ctrl_out = {30'b0, error_out, done_out};
 
         fact_accel #(.WIDTH(4)) fact_accel (
-                .N_INPUT    (wd),
+                .N_INPUT    (n_out[3:0]),
                 .GO         (pulse),
                 .RESET      (rst),
                 .CLK        (clk),

@@ -23,7 +23,7 @@ module p_datapath (
         output wire [31:0] alu_out,
         output wire [31:0] wd_dm,
         output wire [31:0] rd3,
-        output wire [31:0] sh_out
+        output wire [31:0] shift
     );
 
     wire [4:0]  rf_wa;
@@ -42,7 +42,7 @@ module p_datapath (
     wire [31:0] src;
     wire [31:0] wd_rf;
     wire [31:0] wd;
-    wire [31:0] sh_out;
+    wire [31:0] shift;
     wire [31:0] m_prod;
     wire        zero;
     
@@ -159,7 +159,7 @@ module p_datapath (
     mux4 #(32) wd_src_mux (
             .sel            (wdrf_src),
             .a              (src),
-            .b              (sh_out),
+            .b              (shift),
             .c              (m_prod),
             .d              (32'bx),
             .y              (wd_rf)
@@ -170,7 +170,7 @@ module p_datapath (
             .d              (wd_dm),
             .shamt          (instr[10:6]),
             .dir            (shdir),
-            .q              (sh_out)
+            .q              (shift)
         );
 
     // --- Multiplier Logic --- //

@@ -26,7 +26,7 @@ module mips (
     wire       shdir;
     wire [1:0] wdrf_src;
     wire [2:0] alu_ctrl;
-    wire [31:0] sh_out;
+    wire [31:0] shift;
 
     p_datapath dp (
             .clk            (clk),
@@ -51,7 +51,7 @@ module mips (
             .alu_out        (alu_out),
             .wd_dm          (wd_dm),
             .rd3            (rd3),
-            .sh_out         (sh_out)
+            .shift         (shift)
         );
 
     p_controlunit cu (

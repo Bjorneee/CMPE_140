@@ -61,13 +61,13 @@ module s_controlunit(
     end
     
     // Output Logic
-    assign Load_reg = state === s1;
-    assign Load_cnt = state === s1;
-    assign EN = state === s5;
-    assign Sel = state === s5;
-    assign ERROR = state === s4;
-    assign DONE = state === s6;
-    assign OE = state === s6;
+    assign Load_reg = state == s1;
+    assign Load_cnt = state == s1;
+    assign EN = state == s5;
+    assign Sel = state == s5;
+    assign ERROR = state == s4;
+    assign DONE = state == s6;
+    assign OE = state == s6;
     
 endmodule
 

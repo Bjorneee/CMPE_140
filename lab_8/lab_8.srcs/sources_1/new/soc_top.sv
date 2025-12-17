@@ -50,7 +50,7 @@ module soc_top(
         );
 
     imem imem (
-            .a              (pc_current[11:2]),
+            .a              (pc_current[7:2]),
             .y              (instr)
         );
 

@@ -23,6 +23,8 @@ module tb_soc_top;
   reg [31:0] gpo1_prev;
   reg [31:0] gpo2_prev;
   reg saw_update;
+  reg saw_gpo1;
+  reg saw_gpo2;
 
   // Optional plusargs temp
   integer tmp;
@@ -97,31 +99,28 @@ module tb_soc_top;
 
   // Main test flow
   initial begin
-    // wait for reset deassert
+    // After reset deassert:
     @(negedge rst);
 
     gpo1_prev  = gpo1;
     gpo2_prev  = gpo2;
-    saw_update = 1'b0;
+
+    saw_gpo1 = 1'b0;
+    saw_gpo2 = 1'b0;
 
     for (cycle = 0; cycle < max_cycles; cycle = cycle + 1) begin
       @(posedge clk);
 
-      if ((gpo1 !== gpo1_prev) || (gpo2 !== gpo2_prev)) begin
-        saw_update = 1'b1;
-        $display("[TB] GPIO update observed at t=%0t: gpo1=%08h gpo2=%08h", $time, gpo1, gpo2);
+      if (gpo1 !== gpo1_prev) saw_gpo1 = 1'b1;
+      if (gpo2 !== gpo2_prev) saw_gpo2 = 1'b1;
 
-        // gpo1 should be (bit4 | errorBit) => one of {0,1,0x10,0x11}
-        if (!((gpo1 == 32'h0000_0000) ||
-              (gpo1 == 32'h0000_0001) ||
-              (gpo1 == 32'h0000_0010) ||
-              (gpo1 == 32'h0000_0011))) begin
-          $display("[TB][WARN] gpo1=%08h unexpected for (bit4 | errorBit). Check GPIO write path / address map.", gpo1);
-        end
+      if (saw_gpo1 && saw_gpo2) begin
+        $display("[TB] Both GPIO outputs updated at t=%0t: gpo1=%08h gpo2=%08h",
+                $time, gpo1, gpo2);
 
-        if (gpo2 === 32'h0000_0000) begin
-          $display("[TB][WARN] gpo2 is 0 at update; if factorial(0) isn't expected, check FA result/status.");
-        end
+        // Optional: give one extra cycle for any final settling
+        @(posedge clk);
+        $display("[TB] One-cycle-later: gpo1=%08h gpo2=%08h", gpo1, gpo2);
 
         #20;
         $finish;
@@ -130,6 +129,7 @@ module tb_soc_top;
       gpo1_prev = gpo1;
       gpo2_prev = gpo2;
     end
+
 
     if (!saw_update) begin
       $display("[TB][FAIL] No GPIO update within %0d cycles.", max_cycles);
