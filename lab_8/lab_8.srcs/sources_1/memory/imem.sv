@@ -8,7 +8,7 @@ module imem (
     reg [31:0] rom [0:63];
 
     initial begin
-        $readmemh ("memfile.dat", rom);
+        `include "imem_init.svh"
     end
 
     assign y = rom[a];

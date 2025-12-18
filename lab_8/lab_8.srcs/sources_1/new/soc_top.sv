@@ -36,7 +36,7 @@ module soc_top(
     wire [31:0] wd, rd_dm, rd_fa, rd_io;
     wire mem_write, we_dm, we_fa, we_io;
 
-    mips mips (
+    pmips mips (
             .clk            (clk),
             .rst            (rst),
             //.ra3            (ra3),
